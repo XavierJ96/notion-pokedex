@@ -36,3 +36,41 @@ const getAllPokemons = async () => {
   createNotionPage();
 };
 
+const createNotionPage = async () => {
+  for (let pokemon of pokeArray) {
+    console.log(pokemon.number);
+    const response = await notion.pages.create({
+      parent: {
+        type: "database_id",
+        database_id: process.env.NOTION_DATABASE_ID,
+      },
+      properties: {
+        Name: {
+          title: [
+            {
+              text: {
+                content: pokemon.name,
+              },
+            },
+          ],
+        },
+        No: {
+          number: pokemon.number,
+        },
+        Height: { number: pokemon.height },
+        Weight: { number: pokemon.weight },
+        HP: { number: pokemon.hp },
+        Attack: { number: pokemon.attack },
+        Defense: { number: pokemon.defense },
+        "Sp. Attack": { number: pokemon["special-attack"] },
+        "Sp. Defense": { number: pokemon["special-defense"] },
+        Speed: { number: pokemon.speed },
+      },
+    });
+    console.log(response);
+  }
+};
+
+getAllPokemons();
+
+module.exports = { getAllPokemons };
