@@ -15,6 +15,23 @@ const getAllPokemons = async () => {
   await axios
       .get(`https://pokeapi.co/api/v2/pokemon/${i}`)
     .then((poke) => {
+        const processedName = poke.data.species.name
+          .split(/-/)
+          .map((name) => {
+            return name[0].toUpperCase() + name.substring(1);
+          })
+          .join(" ")
+          .replace(/^Mr M/, "Mr. M")
+          .replace(/^Mime Jr/, "Mime Jr.")
+          .replace(/^Mr R/, "Mr. R")
+          .replace(/mo O/, "mo-o")
+          .replace(/Porygon Z/, "Porygon-Z")
+          .replace(/Type Null/, "Type: Null")
+          .replace(/Ho Oh/, "Ho-Oh")
+          .replace(/Nidoran F/, "Nidoran♀")
+          .replace(/Nidoran M/, "Nidoran♂")
+          .replace(/Flabebe/, "Flabébé");
+
         const bulbURL = `https://bulbapedia.bulbagarden.net/wiki/${processedName.replace(
           " ",
           "_"
