@@ -15,6 +15,11 @@ const getAllPokemons = async () => {
   await axios
       .get(`https://pokeapi.co/api/v2/pokemon/${i}`)
     .then((poke) => {
+        const bulbURL = `https://bulbapedia.bulbagarden.net/wiki/${processedName.replace(
+          " ",
+          "_"
+        )}_(Pokémon)`;
+
         const sprite = !poke.data.sprites.front_default
           ? poke.data.sprites.other["official-artwork"].front_default
           : poke.data.sprites.front_default;
