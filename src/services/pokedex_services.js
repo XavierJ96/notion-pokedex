@@ -15,9 +15,10 @@ const getAllPokemons = async () => {
     .get("https://pokeapi.co/api/v2/pokemon/1")
     .then((poke) => {
       const pokeData = {
-        name: poke.data.species.name,
-        number: poke.data.stats[0].base_stat,
-        hp: poke.data.id,
+          name: processedName,
+          number: poke.data.id,
+          types: typesArray,
+          hp: poke.data.stats[0].base_stat,
         height: poke.data.height,
         weight: poke.data.weight,
         attack: poke.data.stats[1].base_stat,
@@ -25,6 +26,9 @@ const getAllPokemons = async () => {
         "special-attack": poke.data.stats[3].base_stat,
         "special-defense": poke.data.stats[4].base_stat,
         speed: poke.data.stats[5].base_stat,
+          sprite: sprite,
+          artwork: poke.data.sprites.other["official-artwork"].front_default,
+          bulbURL: bulbURL,
       };
       pokeArray.push(pokeData);
       console.log(`Fetching ${pokeData.name}`);
