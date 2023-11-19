@@ -15,6 +15,15 @@ const getAllPokemons = async () => {
   await axios
       .get(`https://pokeapi.co/api/v2/pokemon/${i}`)
     .then((poke) => {
+        const typesArray = [];
+
+        for (let type of poke.data.types) {
+          const typeObj = {
+            name: type.type.name,
+          };
+          typesArray.push(typeObj);
+        }
+
         const processedName = poke.data.species.name
           .split(/-/)
           .map((name) => {
