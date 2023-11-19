@@ -11,8 +11,9 @@ console.log(process.env.NOTION_TOKEN);
 const pokeArray = [];
 
 const getAllPokemons = async () => {
+  for (let i = 1; i <= 10; i++) {
   await axios
-    .get("https://pokeapi.co/api/v2/pokemon/1")
+      .get(`https://pokeapi.co/api/v2/pokemon/${i}`)
     .then((poke) => {
       const pokeData = {
           name: processedName,
@@ -36,6 +37,7 @@ const getAllPokemons = async () => {
     .catch((error) => {
       throw new Error(error);
     });
+  }
 
   createNotionPage();
 };
