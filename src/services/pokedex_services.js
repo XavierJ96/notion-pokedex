@@ -6,15 +6,13 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-console.log(process.env.NOTION_TOKEN);
-
 const pokeArray = [];
 
 const getAllPokemons = async () => {
   for (let i = 1; i <= 10; i++) {
-  await axios
+    await axios
       .get(`https://pokeapi.co/api/v2/pokemon/${i}`)
-    .then((poke) => {
+      .then((poke) => {
         const typesArray = [];
 
         for (let type of poke.data.types) {
@@ -50,28 +48,27 @@ const getAllPokemons = async () => {
           ? poke.data.sprites.other["official-artwork"].front_default
           : poke.data.sprites.front_default;
 
-      const pokeData = {
+        const pokeData = {
           name: processedName,
           number: poke.data.id,
           types: typesArray,
           hp: poke.data.stats[0].base_stat,
-        height: poke.data.height,
-        weight: poke.data.weight,
-        attack: poke.data.stats[1].base_stat,
-        defense: poke.data.stats[2].base_stat,
-        "special-attack": poke.data.stats[3].base_stat,
-        "special-defense": poke.data.stats[4].base_stat,
-        speed: poke.data.stats[5].base_stat,
+          height: poke.data.height,
+          weight: poke.data.weight,
+          attack: poke.data.stats[1].base_stat,
+          defense: poke.data.stats[2].base_stat,
+          "special-attack": poke.data.stats[3].base_stat,
+          "special-defense": poke.data.stats[4].base_stat,
+          speed: poke.data.stats[5].base_stat,
           sprite: sprite,
           artwork: poke.data.sprites.other["official-artwork"].front_default,
           bulbURL: bulbURL,
-      };
-      pokeArray.push(pokeData);
-      console.log(`Fetching ${pokeData.name}`);
-    })
-    .catch((error) => {
-      throw new Error(error);
-    });
+        };
+        pokeArray.push(pokeData);
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 
   createNotionPage();
@@ -79,11 +76,23 @@ const getAllPokemons = async () => {
 
 const createNotionPage = async () => {
   for (let pokemon of pokeArray) {
-    console.log(pokemon.number);
+
     const response = await notion.pages.create({
       parent: {
         type: "database_id",
         database_id: process.env.NOTION_DATABASE_ID,
+      },
+      cover: {
+        type: "external",
+        external: {
+          url: pokemon.artwork,
+        },
+      },
+      icon: {
+        type: "external",
+        external: {
+          url: pokemon.sprite,
+        },
       },
       properties: {
         Name: {
@@ -98,6 +107,7 @@ const createNotionPage = async () => {
         No: {
           number: pokemon.number,
         },
+        Type: { multi_select: pokemon.types },
         Height: { number: pokemon.height },
         Weight: { number: pokemon.weight },
         HP: { number: pokemon.hp },
@@ -107,8 +117,14 @@ const createNotionPage = async () => {
         "Sp. Defense": { number: pokemon["special-defense"] },
         Speed: { number: pokemon.speed },
       },
+      children: [{
+        object: "block",
+        type: "bookmark",
+        bookmark: {
+          url: pokemon.bulbURL
+        }
+      }],
     });
-    console.log(response);
   }
 };
 
