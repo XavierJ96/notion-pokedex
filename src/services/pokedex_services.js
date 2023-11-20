@@ -19,10 +19,16 @@ const getLastItemId = async () => {
 };
 
 const getAllPokemons = async () => {
-  for (let i = 1; i <= 10; i++) {
+  const lastItemId = await getLastItemId();
+  for (let i = 0; i < lastItemId; i++) {
+    const pokemonData = await axios.get(
+      "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0"
+    );
+    console.log(i);
+    let pokemonUrl = pokemonData.data.results[i].url;
     await axios
-      .get(`https://pokeapi.co/api/v2/pokemon/${i}`)
-      .then((poke) => {
+      .get(pokemonUrl)
+      .then(async (poke) => {
         const typesArray = [];
 
         for (let type of poke.data.types) {
@@ -58,7 +64,20 @@ const getAllPokemons = async () => {
           ? poke.data.sprites.other["official-artwork"].front_default
           : poke.data.sprites.front_default;
 
+        let state;
+
+        await axios
+          .get(
+            `https://pokeapi.co/api/v2/pokemon-species/${poke.data.species.name}`
+          )
+          .then((pokemon) => {
+            state =
+              pokemon.data.genera.length === 0 ||
+              pokemon.data.flavor_text_entries.length === 0;
+          });
+
         const pokeData = {
+          initialName: poke.data.species.name,
           name: processedName,
           number: poke.data.id,
           types: typesArray,
@@ -74,10 +93,38 @@ const getAllPokemons = async () => {
           artwork: poke.data.sprites.other["official-artwork"].front_default,
           bulbURL: bulbURL,
         };
+
+        if (!state) {
+          if (!pokeArray.some((pokemon) => pokemon.name === pokeData.name)) {
         pokeArray.push(pokeData);
+          }
+        }
       })
       .catch((error) => {
         throw new Error(error);
+      });
+  }
+
+  for (let pokemon of pokeArray) {
+    const flavor = await axios
+      .get(`https://pokeapi.co/api/v2/pokemon-species/${pokemon.initialName}`)
+      .then((flavor) => {
+        const flavorText = flavor.data.flavor_text_entries
+          .find(({ language: { name } }) => name === "en")
+          .flavor_text.replace(/\n|\r|\f/g, " ");
+
+        const category = flavor.data.genera.find(
+          ({ language: { name } }) => name === "en"
+        ).genus;
+
+        const generation = flavor.data.generation.name
+          .split(/-/)
+          .pop()
+          .toUpperCase();
+
+        pokemon["flavor-text"] = flavorText;
+        pokemon.category = category;
+        pokemon.generation = generation;
       });
   }
 
