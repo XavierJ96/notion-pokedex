@@ -96,7 +96,7 @@ const getAllPokemons = async () => {
 
         if (!state) {
           if (!pokeArray.some((pokemon) => pokemon.name === pokeData.name)) {
-        pokeArray.push(pokeData);
+            pokeArray.push(pokeData);
           }
         }
       })
@@ -133,18 +133,20 @@ const getAllPokemons = async () => {
 
 const createNotionPage = async () => {
   for (let pokemon of pokeArray) {
-
     const response = await notion.pages.create({
       parent: {
         type: "database_id",
         database_id: process.env.NOTION_DATABASE_ID,
       },
-      cover: {
-        type: "external",
-        external: {
-          url: pokemon.artwork,
-        },
-      },
+      cover:
+        pokemon.artwork !== null
+          ? {
+              type: "external",
+              external: {
+                url: pokemon.artwork,
+              },
+            }
+          : null,
       icon: {
         type: "external",
         external: {
@@ -165,6 +167,21 @@ const createNotionPage = async () => {
           number: pokemon.number,
         },
         Type: { multi_select: pokemon.types },
+        Generation: {
+          select: {
+            name: pokemon.generation,
+          },
+        },
+        Category: {
+          rich_text: [
+            {
+              type: "text",
+              text: {
+                content: pokemon.category,
+              },
+            },
+          ],
+        },
         Height: { number: pokemon.height },
         Weight: { number: pokemon.weight },
         HP: { number: pokemon.hp },
@@ -174,13 +191,43 @@ const createNotionPage = async () => {
         "Sp. Defense": { number: pokemon["special-defense"] },
         Speed: { number: pokemon.speed },
       },
-      children: [{
-        object: "block",
-        type: "bookmark",
-        bookmark: {
-          url: pokemon.bulbURL
-        }
-      }],
+      children: [
+        {
+          object: "block",
+          type: "quote",
+          quote: {
+            rich_text: [
+              {
+                type: "text",
+                text: {
+                  content: pokemon["flavor-text"],
+                },
+              },
+            ],
+          },
+        },
+        {
+          object: "block",
+          type: "paragraph",
+          paragraph: {
+            rich_text: [
+              {
+                type: "text",
+                text: {
+                  content: "",
+                },
+              },
+            ],
+          },
+        },
+        {
+          object: "block",
+          type: "bookmark",
+          bookmark: {
+            url: pokemon.bulbURL,
+          },
+        },
+      ],
     });
   }
 };
