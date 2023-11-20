@@ -8,6 +8,16 @@ const notion = new Client({
 
 const pokeArray = [];
 
+const getLastItemId = async () => {
+  try {
+    const response = await axios.get("https://pokeapi.co/api/v2/pokemon/");
+    const lastItemId = response.data.count;
+    return lastItemId;
+  } catch (error) {
+    throw new Error("Error fetching data count:", error);
+  }
+};
+
 const getAllPokemons = async () => {
   for (let i = 1; i <= 10; i++) {
     await axios
