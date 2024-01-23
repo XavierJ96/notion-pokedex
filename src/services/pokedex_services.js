@@ -24,7 +24,7 @@ const getAllPokemons = async () => {
     const pokemonData = await axios.get(
       "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0"
     );
-    console.log(i);
+
     let pokemonUrl = pokemonData.data.results[i].url;
     await axios
       .get(pokemonUrl)
